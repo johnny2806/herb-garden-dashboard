@@ -1,4 +1,25 @@
+# --- Python / Backend ---
 __pycache__/
+*.py[cod]
+*$py.class
+venv/
 .venv/
+.env
+
+# --- C++ / Firmware (PlatformIO/Arduino) ---
+.pio/
+.build/
+build/
+bin/
+*.uf2
+*.elf
+*.hex
+
+# --- Frontend / Web ---
+node_modules/
+.DS_Store
+dist/
+
+# --- IDE Config ---
 .vscode/
-*.pyc
+.idea/
