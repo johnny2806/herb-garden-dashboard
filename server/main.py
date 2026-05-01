@@ -1,56 +1,51 @@
-import os
+import socket
 import threading
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+from app.core.security import decrypt_telemetry
 from dotenv import load_dotenv
+import os
 
-from app.core.security import Decryptor
-from app.services.telemetry import TelemetryService
-
-# --- CONFIGURATION LAYER ---
 # Load environment variables from .env file
-load_dotenv() 
+load_dotenv()
+CHACHA_KEY = os.getenv("CHACHA_KEY")
+UDP_IP = "0.0.0.0"  # Listen on all available network interfaces
+UDP_PORT = 5005
 
-app = FastAPI(title="Secure Herb Garden Gateway")
+app = FastAPI(title="Herb Garden Ingestion Server")
 
-# Enable Cross-Origin Resource Sharing for the Web Dashboard
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# Thread-safe storage for the latest decrypted telemetry packet
+latest_telemetry = {"data": "AWAITING_INGESTION", "timestamp": "N/A"}
 
-# Initialize Security Layer with Environment Key
-# Default fallback is provided for development only
-SECRET_KEY_HEX = os.getenv("CHACHA20_SECRET_KEY", "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f")
-SHARED_KEY = bytes.fromhex(SECRET_KEY_HEX)
-
-# Service Instances
-decryptor = Decryptor(SHARED_KEY)
-telemetry_service = TelemetryService()
-
-# --- LIFECYCLE HOOKS ---
-@app.on_event("startup")
-def start_background_workers():
-    """Spawn the UDP listener on a dedicated daemon thread."""
-    worker = threading.Thread(
-        target=telemetry_service.start_listener, 
-        args=(decryptor,), 
-        daemon=True
-    )
-    worker.start()
-
-# --- REST ENDPOINTS ---
-@app.get("/api/v1/health")
-async def get_health_status():
-    """System health check endpoint."""
-    return {"status": "operational", "engine": "FastAPI"}
-
-@app.get("/api/v1/telemetry/latest")
-async def fetch_telemetry():
+def udp_ingress_worker():
     """
-    Retrieves the most recent verified datagram.
-    Response Time: O(1)
+    Background worker thread to handle asynchronous UDP packet ingestion.
     """
-    return telemetry_service.get_latest_telemetry()
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.bind((UDP_IP, UDP_PORT))
+    print(f"[SYSTEM] UDP Ingress Port {UDP_PORT} is now ACTIVE.")
+
+    while True:
+        # Standard UDP buffer size for telemetry payloads
+        data, addr = sock.recvfrom(1024)
+        
+        # Execute synchronized decryption logic
+        decrypted_str = decrypt_telemetry(data, CHACHA_KEY)
+        
+        if decrypted_str:
+            global latest_telemetry
+            latest_telemetry = {
+                "data": decrypted_str,
+                "origin": addr[0]
+            }
+            # Technical log following US standard instrumentation format
+            print(f"[INGEST] Valid packet received from {addr[0]} | Payload: {decrypted_str}")
+
+# Initialize ingress worker thread
+threading.Thread(target=udp_ingress_worker, daemon=True).start()
+
+@app.get("/api/telemetry")
+async def get_telemetry():
+    """
+    Exposes the latest telemetry data via a RESTful endpoint for the Dashboard.
+    """
+    return latest_telemetry

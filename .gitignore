@@ -1,25 +1,40 @@
-# --- Python / Backend ---
+# =================================================================
+# HERB GARDEN PROJECT - GLOBAL GIT IGNORE
+# =================================================================
+
+# --- PYTHON / VIRTUAL ENVIRONMENTS ---
+# Do not upload local environment dependencies to the repository.
+venv/
+.venv/
+env/
 __pycache__/
 *.py[cod]
 *$py.class
-venv/
-.venv/
 .env
 
-# --- C++ / Firmware (PlatformIO/Arduino) ---
+# --- FIRMWARE / EMBEDDED (PLATFORMIO) ---
+# Exclude compiled binaries and temporary build artifacts.
 .pio/
 .build/
 build/
 bin/
 *.uf2
 *.elf
+*.bin
 *.hex
 
-# --- Frontend / Web ---
-node_modules/
-.DS_Store
-dist/
+# --- HARDWARE SECRETS (CRITICAL SECURITY) ---
+# Block hardware credentials to prevent unauthorized network access.
+firmware/include/Secrets.h
+!firmware/include/Secrets.h.example
 
-# --- IDE Config ---
+# --- OPERATING SYSTEM JUNK ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- IDE / PROJECT CONFIG ---
 .vscode/
 .idea/
+*.swp
+*.swo

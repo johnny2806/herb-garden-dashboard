@@ -1,5 +1,22 @@
+# =================================================================
+# HERB GARDEN INGESTION SERVER - PYTHON DEPENDENCIES
+# =================================================================
+
+# --- CORE WEB FRAMEWORK ---
+# FastAPI: High-performance web framework for building APIs.
 fastapi==0.104.1
+
+# Uvicorn: Lightning-fast ASGI server implementation.
 uvicorn==0.24.0
+
+# --- CRYPTOGRAPHIC OPERATIONS ---
+# PyCryptodome: Self-contained cryptographic library for ChaCha20.
 pycryptodome==3.19.0
-pydantic==2.5.2
+
+# --- ENVIRONMENT MANAGEMENT ---
+# Python-dotenv: Reads key-value pairs from .env files for secure config.
 python-dotenv==1.0.0
+
+# --- DATA VALIDATION ---
+# Pydantic: Data validation and settings management using Python type hints.
+pydantic==2.5.2

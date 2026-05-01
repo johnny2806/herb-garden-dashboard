@@ -1,18 +1,35 @@
-from Crypto.Cipher import ChaCha20_Poly1305
-import binascii
+from Crypto.Cipher import ChaCha20
+import logging
 
-class Decryptor:
-    """Handles ChaCha20-Poly1305 AEAD decryption O(n)."""
-    def __init__(self, master_key: bytes):
-        if len(master_key) != 32:
-            raise ValueError("ChaCha20 Key must be 32 bytes.")
-        self.key = master_key
+# Initialize logger for security events
+logger = logging.getLogger(__name__)
 
-    def decrypt(self, nonce_hex: str, ciphertext_hex: str) -> str:
-        try:
-            nonce = bytes.fromhex(nonce_hex.replace(" ", ""))
-            ciphertext = bytes.fromhex(ciphertext_hex.replace(" ", ""))
-            cipher = ChaCha20_Poly1305.new(key=self.key, nonce=nonce)
-            return cipher.decrypt(ciphertext).decode('utf-8')
-        except (ValueError, TypeError) as e:
-            return f"Decryption_Error: {str(e)}"
+def decrypt_telemetry(raw_ingress_data: bytes, key_hex: str) -> str:
+    """
+    Decrypts incoming UDP telemetry packets using ChaCha20 stream cipher.
+    
+    Architecture:
+    - Bytes [0:4]: 32-bit Message Counter (used as Nonce/IV)
+    - Bytes [4:]: Encrypted Payload (Ciphertext)
+    """
+    try:
+        # 1. Extract the 32-bit message counter from the ingress buffer
+        # This counter must match the value incremented by the Pico W firmware
+        msg_counter_bytes = raw_ingress_data[:4]
+        ciphertext = raw_ingress_data[4:]
+        
+        # 2. Reconstruct the 96-bit (12-byte) Nonce
+        # We append 8 bytes of zero-padding to the 4-byte counter (Little-Endian)
+        nonce = msg_counter_bytes + b'\x00' * 8
+        
+        # 3. Initialize the ChaCha20 cipher context with the 256-bit key
+        key = bytes.fromhex(key_hex)
+        cipher = ChaCha20.new(key=key, nonce=nonce)
+        
+        # 4. Decrypt and decode the remaining payload
+        decrypted_payload = cipher.decrypt(ciphertext)
+        return decrypted_payload.decode('utf-8')
+        
+    except Exception as e:
+        logger.error(f"Decryption Failure: Integrity check failed or malformed packet. Error: {str(e)}")
+        return None
