@@ -1,0 +1,23 @@
+/**
+ * @file CalibrateNode.cpp
+ * @brief Utility to find ADC limits for Soil Moisture Sensor V1.2.
+ */
+
+#include <Arduino.h>
+
+const uint8_t SOIL_PIN = 26; // ADC0
+
+void setup()
+{
+    Serial.begin(115200);
+    delay(2000);
+    Serial.println(F("--- START CALIBRATION ---"));
+}
+
+void loop()
+{
+    uint16_t raw = analogRead(SOIL_PIN);
+    Serial.print(F("Raw ADC Value: "));
+    Serial.println(raw);
+    delay(500);
+}

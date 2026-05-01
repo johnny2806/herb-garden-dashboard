@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SECURE IOT DASHBOARD - HERB GARDEN</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <header class="header-section">
+            <div class="header-left">
+                <h1 class="header-title">Herb Garden Security Hub</h1>
+                <div class="flex items-center gap-2">
+                    <span class="status-dot green animate-pulse"></span>
+                    <p class="header-sub">Stealth Randomized MAC Mode Active</p>
+                </div>
+            </div>
+
+            <div class="header-right">
+                <div class="flex flex-col items-end">
+                    <span id="update_timestamp" class="font-mono-data timestamp-label">
+                        SYNC_WAITING...
+                    </span>
+                    <div class="badge-container mt-1">
+                        <span class="badge badge-blue">UDP_INGEST</span>
+                        <span class="badge badge-purple">CHACHA20_AEAD</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="grid-stats">
+            <div class="dashboard-card flex flex-col justify-center items-center text-center">
+                <h3 class="card-label">Identity Verification</h3>
+                <p id="identity_display" class="identity-value py-4">--:--:--:--:--:--</p>
+                <div id="auth_status" class="auth-status-bar">NOT_VERIFIED</div>
+            </div>
+
+            <div class="dashboard-card flex flex-col items-center">
+                <div class="gauge-wrapper">
+                    <canvas id="tempGauge"></canvas>
+                    <div class="gauge-center-overlay">
+                        <span id="temperature_display" class="gauge-value text-emerald-600">00.00</span>
+                        <span class="gauge-unit text-emerald-400">CELSIUS</span>
+                    </div>
+                </div>
+                <h3 class="card-label">Ambient Temp</h3>
+            </div>
+
+            <div class="dashboard-card flex flex-col items-center">
+                <div class="gauge-wrapper">
+                    <canvas id="humGauge"></canvas>
+                    <div class="gauge-center-overlay">
+                        <span id="air_humidity_display" class="gauge-value text-purple-600">00.00</span>
+                        <span class="gauge-unit text-purple-400">HUMIDITY %</span>
+                    </div>
+                </div>
+                <h3 class="card-label">Air Humidity</h3>
+            </div>
+
+            <div class="dashboard-card flex flex-col items-center">
+                <div class="gauge-wrapper">
+                    <canvas id="soilGauge"></canvas>
+                    <div class="gauge-center-overlay">
+                        <span id="moisture_display" class="gauge-value text-blue-600">00.00</span>
+                        <span class="gauge-unit text-blue-400">SATURATION %</span>
+                    </div>
+                </div>
+                <h3 class="card-label">Soil Moisture</h3>
+            </div>
+        </main>
+    </div>
+
+    <script type="module" src="js/app.js"></script>
+</body>
+
+</html>
