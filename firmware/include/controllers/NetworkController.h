@@ -3,13 +3,24 @@
 
 #include <Arduino.h>
 
-class NetworkController {
+/**
+ * @class NetworkController
+ * @brief Handles MAC address spoofing and hardware identity management.
+ */
+class NetworkController
+{
 public:
     NetworkController();
     void begin();
-    String getPhysicalMac();  // Lấy MAC thật của chip
-    String getActiveMac();    // Lấy MAC đang chạy (có thể là giả)
-    void applyMacSpoofing(uint8_t* fakeMac);
+
+    /** @brief Retrieves the immutable factory-set MAC address. */
+    String getPhysicalMac();
+
+    /** @brief Retrieves the current active MAC address (spoofed or real). */
+    String getActiveMac();
+
+    /** @brief Applies locally administered MAC address (LAA) for stealth operations. */
+    void applyMacSpoofing(uint8_t *fakeMac);
 };
 
 #endif

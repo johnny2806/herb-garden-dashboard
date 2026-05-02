@@ -1,13 +1,13 @@
 /**
- * UI Controller Module - Precision Instrumentation Edition
- * Synchronizes custom gauge ticks with Chart.js internal coordinate system.
+ * UI Instrumentation Module.
+ * Manages gauge rendering and real-time DOM updates.
  */
 
+// Custom Chart.js plugin for technical gauge ticks
 const gaugeTicksPlugin = {
     id: 'gaugeTicks',
     afterDraw: (chart) => {
         const { ctx } = chart;
-        // Retrieve the EXACT coordinates used by the Chart.js engine
         const meta = chart.getDatasetMeta(0).data[0];
         if (!meta) return;
 
@@ -24,15 +24,12 @@ const gaugeTicksPlugin = {
             const angle = Math.PI + (i * Math.PI / 10);
             const labelValue = Math.round((i / 10) * maxVal);
 
-            // Draw Ticks: Anchored precisely to the outer radius boundary
             ctx.strokeStyle = '#D1D5DB';
-            ctx.lineWidth = 1.5;
             ctx.beginPath();
             ctx.moveTo(Math.cos(angle) * (outerRadius + 2), Math.sin(angle) * (outerRadius + 2));
             ctx.lineTo(Math.cos(angle) * (outerRadius + 8), Math.sin(angle) * (outerRadius + 8));
             ctx.stroke();
 
-            // Draw Numeric Labels: Offset for optimal legibility
             ctx.fillStyle = '#9CA3AF';
             const labelX = Math.cos(angle) * (outerRadius + 20);
             const labelY = Math.sin(angle) * (outerRadius + 20);
@@ -62,7 +59,6 @@ const createGaugeConfig = (color, max) => ({
         datasets: [{
             data: [0, max],
             backgroundColor: [color, '#F3F4F6'],
-            borderWidth: 0,
             circumference: 180,
             rotation: 270,
             cutout: '82%',
@@ -73,8 +69,7 @@ const createGaugeConfig = (color, max) => ({
         customMax: max,
         responsive: true,
         maintainAspectRatio: false,
-        // Provided padding for external label clearance
-        layout: { padding: { top: 30, bottom: 10, left: 35, right: 35 } },
+        layout: { padding: 35 },
         plugins: { legend: { display: false }, tooltip: { enabled: false } }
     }
 });
@@ -94,6 +89,7 @@ export function updateDashboard(data) {
     ui.soil.textContent = data.soil.toFixed(2);
     ui.time.textContent = `LAST_SYNC: ${data.timestamp}`;
 
+    // Authentication visual feedback
     if (data.id && data.id.includes("28:CD:C1")) {
         ui.auth.textContent = "STEALTH_AUTHENTICATED";
         ui.auth.style.color = "#059669";

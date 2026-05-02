@@ -1,30 +1,28 @@
-# FILE: test_sender.py
-# Purpose: Simulates a Pico W sending encrypted telemetry via UDP.
-# US English Terminology: Mocking, Payload, Datagram.
-
+# FILE: server/tests/test_sender.py (Bản AEAD)
 import socket
 import time
+from Crypto.Cipher import ChaCha20_Poly1305
 
-# 1. Configuration (Match your Server settings)
-SERVER_IP = "127.0.0.1"  # Localhost for testing
-SERVER_PORT = 5005
-# Copy an actual IV and Ciphertext from your previous Serial Monitor logs
-MOCK_IV = "2C 3A 94 98 19 74 93 1A EC E9 8C FF"
-MOCK_CIPHER = "9E A2 FA 8C AC 59 38 BF 86 8C E5 7C 2D 4B 71 93 10 F7 E7 46 F6 13 EB A0 6C 78 B1 6B F8 DD 85 CD F4 9A 8F"
+UDP_IP = "127.0.0.1"
+UDP_PORT = 5005
+SECRET_KEY = "7365637265746b65793031323334353637383930313233343536373839303132"
 
-def send_mock_telemetry():
-    """
-    Constructs a UDP datagram and broadcasts it to the backend.
-    Complexity: O(1) - Constant time transmission.
-    """
-    # Construct the protocol string: "IV:<hex>|CIPHER:<hex>"
-    payload = f"IV:{MOCK_IV}|CIPHER:{MOCK_CIPHER}"
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+message_counter = 0
+
+while True:
+    message_counter += 1
+    # Use Comma Separated Format: "ID:NODE-01,T:28.5,H:65.0,S:45.0"
+    raw_data = f"ID:NODE-01,T:28.5,H:65.0,S:45.0"
     
-    # Create UDP Socket
-    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
-        print(f"[Mock] Injecting encrypted payload into {SERVER_IP}:{SERVER_PORT}...")
-        sock.sendto(payload.encode('utf-8'), (SERVER_IP, SERVER_PORT))
-        print("[Mock] Transmission successful.")
-
-if __name__ == "__main__":
-    send_mock_telemetry()
+    nonce = message_counter.to_bytes(4, 'little') + b'\x00' * 8
+    key = bytes.fromhex(SECRET_KEY)
+    
+    # Use ChaCha20_Poly1305
+    cipher = ChaCha20_Poly1305.new(key=key, nonce=nonce)
+    ciphertext, tag = cipher.encrypt_and_digest(raw_data.encode('utf-8'))
+    
+    # Packet 63 bytes: [Counter(4)] + [Tag(16)] + [Ciphertext]
+    packet = message_counter.to_bytes(4, 'little') + tag + ciphertext
+    sock.sendto(packet, (UDP_IP, UDP_PORT))
+    time.sleep(2)

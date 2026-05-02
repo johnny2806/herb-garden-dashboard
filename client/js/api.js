@@ -1,35 +1,25 @@
 /**
- * API Service for remote telemetry ingestion.
- * Fetches encrypted datagrams and performs key-value extraction.
+ * Telemetry Fetcher.
+ * Retrieves verified JSON payloads from the REST API.
  */
 export async function fetchTelemetry(url) {
     try {
         const response = await fetch(url);
         const data = await response.json();
-        
-        if (data.decrypted_payload) {
-            const payload = data.decrypted_payload;
-            
-            /**
-             * Internal helper to extract values via Regular Expressions.
-             * Matches key patterns like "T:28.5" from CSV-style strings.
-             */
-            const extract = (key) => {
-                const match = payload.match(new RegExp(`${key}:([^,]+)`));
-                return match ? match[1] : null;
-            };
 
+        // Return structured data only if the node is verified as ONLINE
+        if (data.status === "ONLINE") {
             return {
-                id: extract("ID"),
-                temp: parseFloat(extract("T")),
-                hum: parseFloat(extract("H")),
-                soil: parseFloat(extract("S")),
+                id: data.identity,
+                temp: data.temperature_celsius,
+                hum: data.humidity_percentage,
+                soil: data.saturation_percentage,
                 timestamp: new Date().toLocaleTimeString()
             };
         }
         return null;
     } catch (error) {
-        console.error("[API_FATAL]: Data ingestion failed", error);
+        console.error("[API_ERROR]: Connection refused or malformed response.", error);
         return null;
     }
 }
