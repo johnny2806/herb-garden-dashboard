@@ -47,3 +47,30 @@ void NetworkController::applyMacSpoofing(uint8_t *fakeMac)
     }
     cyw43_arch_lwip_end();
 }
+
+void NetworkController::update(NetworkModel &model)
+{
+    // 1. IP Address Extraction
+    String ip = WiFi.localIP().toString();
+    // Safely copy string to char array preventing buffer overflow
+    strncpy(model.ip_address, ip.c_str(), sizeof(model.ip_address) - 1);
+    model.ip_address[sizeof(model.ip_address) - 1] = '\0';
+
+    // 2. Radio Signal Strength Indicator (RSSI)
+    model.signal_strength_rssi = WiFi.RSSI();
+
+    // 3. Link Uptime Calculation
+    if (WiFi.status() == WL_CONNECTED)
+    {
+        if (_connection_start_ms == 0)
+        {
+            _connection_start_ms = millis(); // Mark the establishment time
+        }
+        model.connection_uptime = (millis() - _connection_start_ms) / 1000; // in seconds
+    }
+    else
+    {
+        _connection_start_ms = 0;
+        model.connection_uptime = 0;
+    }
+}

@@ -14,14 +14,14 @@ HydrationController::HydrationController(uint8_t pin, uint16_t dryLimit, uint16_
 
 void HydrationController::begin()
 {
-    pinMode(_pin, INPUT); // Initialize ADC pin for input
+    // pinMode(_pin, INPUT); // Initialize ADC pin for input
 }
 
 /**
  * @brief Performs ADC sampling and converts raw data to saturation percentage.
  */
 void HydrationController::update(SoilHydrationModel &model)
-{
+{ // 1. ADC Sampling
     uint16_t raw = analogRead(_pin);
     model.raw_value = raw;
 

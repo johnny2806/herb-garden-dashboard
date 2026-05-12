@@ -1,18 +1,21 @@
 #ifndef APP_CONFIG_H
 #define APP_CONFIG_H
 
-// Hardware Pins
-#define PIN_DHT_SENSOR 22  // DHT11 Data Pin (GPIO22)
-#define PIN_SOIL_SENSOR 26 // Soil Moisture Sensor Pin (GPIO26)
-#define PIN_PUMP_RELAY 14  // Water Pump Relay Pin (GPIO14)
+#include <Arduino.h>
 
-// Calibration Values
-#define SOIL_AIR_DRY 700   // Read when soil is completely dry (0% moisture)
-#define SOIL_WATER_WET 360 // Read when soil is fully saturated (100% moisture)
+// --- HARDWARE PINOUT MAPPING ---
+#define PIN_DHT_SENSOR 22  // GPIO22: 1-Wire data bus for DHT11 environmental sensor
+#define PIN_SOIL_SENSOR A0 // GPIO26 (ADC0): Capacitive soil moisture sensor input
+#define PIN_PUMP_RELAY 14  // GPIO14: Actuator control line for water pump relay
 
-// --- NETWORK CONFIGURATION (US English) ---
-// Find your computer's LAN IP when connected to the mobile hotspot (e.g., 192.168.43.10)
-const char *SERVER_HOSTNAME = "192.168.2.118"; // CHANGE THIS TO YOUR COMPUTER'S IP
-const uint16_t SERVER_PORT = 5005;             // Port number for UDP communication
+// --- SENSOR CALIBRATION MATRIX (12-bit Resolution: 0 - 4095) ---
+// Derived from baseline voltages: Dry ~2.2V, Wet ~1.2V at 3.3V AREF
+#define SOIL_AIR_DRY 710   // ADC baseline for 0% volumetric water content (ambient air)
+#define SOIL_WATER_WET 382 // ADC baseline for 100% saturation (submerged)
 
-#endif
+// --- NETWORK COMMUNICATION PROTOCOL ---
+// Target ingress server for UDP datagrams
+const char *SERVER_HOSTNAME = "192.168.2.118"; // Destination IPv4 address
+const uint16_t SERVER_PORT = 5005;             // Destination UDP port
+
+#endif // APP_CONFIG_H

@@ -14,7 +14,12 @@ export async function fetchTelemetry(url) {
                 temp: data.temperature_celsius,
                 hum: data.humidity_percentage,
                 soil: data.saturation_percentage,
-                timestamp: new Date().toLocaleTimeString()
+                soil_raw: data.soil_raw_adc,
+                timestamp: new Date().toLocaleTimeString(),
+                core_temp: data.core_temp,
+                free_heap_bytes: data.free_heap_bytes,
+                rssi_dbm: data.rssi_dbm,
+                uptime_sec: data.uptime_sec
             };
         }
         return null;

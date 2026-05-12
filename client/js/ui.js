@@ -50,7 +50,12 @@ export const ui = {
     time: document.getElementById('update_timestamp'),
     tempCtx: document.getElementById('tempGauge').getContext('2d'),
     humCtx: document.getElementById('humGauge').getContext('2d'),
-    soilCtx: document.getElementById('soilGauge').getContext('2d')
+    soilCtx: document.getElementById('soilGauge').getContext('2d'),
+    sys_rssi: document.getElementById('ui_rssi'),
+    sys_core: document.getElementById('ui_core_temp'),
+    sys_heap: document.getElementById('ui_heap'),
+    sys_uptime: document.getElementById('ui_uptime'),
+    sys_soil_raw: document.getElementById('ui_soil_raw')
 };
 
 const createGaugeConfig = (color, max) => ({
@@ -88,6 +93,22 @@ export function updateDashboard(data) {
     ui.hum.textContent = data.hum.toFixed(2);
     ui.soil.textContent = data.soil.toFixed(2);
     ui.time.textContent = `LAST_SYNC: ${data.timestamp}`;
+    // Display RSSI with color coding (red if weak signal)
+    ui.sys_rssi.textContent = data.rssi_dbm;
+    ui.sys_rssi.style.color = data.rssi_dbm < -80 ? "#EF4444" : "#1F2937"; // Red if weak signal
+
+    // Display core temperature with color coding (red if too hot)
+    ui.sys_core.textContent = data.core_temp.toFixed(1);
+    ui.sys_core.style.color = data.core_temp > 70 ? "#EF4444" : "#1F2937"; // Red if too hot
+
+    // Change heap display to KB and color code (red if low memory)
+    ui.sys_heap.textContent = Math.round(data.free_heap_bytes / 1024);
+    ui.sys_heap.style.color = data.free_heap_bytes < 10240 ? "#EF4444" : "#1F2937"; // Red if low memory
+
+    // Calculate Uptime (Showing only seconds for the cool factor)
+    ui.sys_uptime.textContent = data.uptime_sec;
+
+    ui.sys_soil_raw.textContent = data.soil_raw;
 
     // Authentication visual feedback
     if (data.id && data.id.includes("28:CD:C1")) {

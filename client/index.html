@@ -73,6 +73,20 @@
                 <h3 class="card-label">Soil Moisture</h3>
             </div>
         </main>
+
+        <div
+            class="mt-8 pt-4 border-t-2 border-gray-200 flex justify-between items-center text-xs font-mono-data text-gray-500">
+            <div class="flex gap-4">
+                <span>📡 WLAN RSSI: <strong id="ui_rssi" class="text-gray-800">--</strong> dBm</span>
+                <span>🔥 RP2040 CORE: <strong id="ui_core_temp" class="text-gray-800">--</strong> °C</span>
+                <span>💧 SOIL ADC: <strong id="ui_soil_raw" class="text-gray-800">--</strong></span>
+            </div>
+        </div>
+        <div class="flex gap-4">
+            <span>🧠 FREE HEAP: <strong id="ui_heap" class="text-gray-800">--</strong> KB</span>
+            <span>⏱️ UPTIME: <strong id="ui_uptime" class="text-gray-800">--</strong> s</span>
+        </div>
+    </div>
     </div>
 
     <script type="module" src="js/app.js"></script>

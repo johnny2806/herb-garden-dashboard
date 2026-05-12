@@ -2,6 +2,7 @@
 #define NETWORK_CONTROLLER_H
 
 #include <Arduino.h>
+#include "models.h"
 
 /**
  * @class NetworkController
@@ -21,6 +22,14 @@ public:
 
     /** @brief Applies locally administered MAC address (LAA) for stealth operations. */
     void applyMacSpoofing(uint8_t *fakeMac);
+
+    /** * @brief Extracts real-time network metrics into the domain model.
+     * @param model Reference to the NetworkModel structure.
+     */
+    void update(NetworkModel &model);
+
+private:
+    uint32_t _connection_start_ms; // Tracks when the WLAN link was established
 };
 
 #endif

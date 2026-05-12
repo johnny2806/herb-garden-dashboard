@@ -53,6 +53,7 @@ def udp_ingress_worker():
             
             if decrypted_str:
                 # FIX: split(':', 1) preserves the full MAC address by splitting only at the first colon
+                print(f"[DEBUG INGRESS]: {decrypted_str}")
                 parts = {kv.split(':', 1)[0]: kv.split(':', 1)[1] for kv in decrypted_str.split(',')}
                 
                 # Update global telemetry with parsed and verified metrics
@@ -62,7 +63,12 @@ def udp_ingress_worker():
                     "identity": parts.get("ID", "UNKNOWN"),
                     "temperature_celsius": float(parts.get("T", 0)),
                     "humidity_percentage": float(parts.get("H", 0)),
-                    "saturation_percentage": float(parts.get("S", 0))
+                    "saturation_percentage": float(parts.get("S", 0)),
+                    "soil_raw_adc": int(parts.get("SR", 0)),
+                    "core_temp": float(parts.get("CT", 0)),
+                    "free_heap_bytes": int(parts.get("MEM", 0)),
+                    "rssi_dbm": int(parts.get("RSSI", 0)),
+                    "uptime_sec": int(parts.get("UP", 0))
                 }
                 print(f"[INGEST] Valid Frame Decoded from {addr[0]}")
         except Exception as e:
