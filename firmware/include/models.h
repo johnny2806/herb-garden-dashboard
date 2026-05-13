@@ -1,4 +1,4 @@
-/**
+/*
  * @file models.h
  * @author Exploratory Nerd - Universal Polymath
  * @brief Unified Domain Models for the Herb Garden Node Project.
@@ -24,11 +24,11 @@ struct ClimateModel
 
 /**
  * 2. Soil Hydration Model: Represents the moisture state of the herb plant.
- * (Used in Task 1 Main Logic)
+ * (Updated to 12-bit resolution for Native SDK compatibility)
  */
 struct SoilHydrationModel
 {
-    uint16_t raw_value;          // Direct ADC reading from V1.2 sensor (0-1024)
+    uint16_t raw_value;          // Direct 12-bit ADC reading (0-4095)
     float saturation_percentage; // Calculated moisture level (0.0 to 100.0)
 };
 

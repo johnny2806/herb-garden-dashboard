@@ -9,5 +9,5 @@ export const CONFIG = {
         const host = window.location.hostname || "localhost";
         return `http://${host}:${this.PORT}${this.ENDPOINT}`;
     },
-    POLLING_MS: 2000 // Synchronization frequency
+    POLLING_MS: 1000 // Synchronization frequency
 };

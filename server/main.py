@@ -11,6 +11,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.security import decrypt_telemetry
 from dotenv import load_dotenv
+from typing import Optional
 
 # --- SYSTEM INITIALIZATION ---
 load_dotenv()
@@ -35,7 +36,8 @@ latest_telemetry = {
     "identity": "--:--:--:--:--:--",
     "temperature_celsius": 0.00,
     "humidity_percentage": 0.00,
-    "saturation_percentage": 0.00
+    "saturation_percentage": 0.00,
+    "pump_is_active": False
 }
 
 def udp_ingress_worker():
@@ -68,7 +70,8 @@ def udp_ingress_worker():
                     "core_temp": float(parts.get("CT", 0)),
                     "free_heap_bytes": int(parts.get("MEM", 0)),
                     "rssi_dbm": int(parts.get("RSSI", 0)),
-                    "uptime_sec": int(parts.get("UP", 0))
+                    "uptime_sec": int(parts.get("UP", 0)),
+                    "pump_is_active": bool(int(parts.get("PMP", 0))) # Extract relay logic state
                 }
                 print(f"[INGEST] Valid Frame Decoded from {addr[0]}")
         except Exception as e:
@@ -76,6 +79,23 @@ def udp_ingress_worker():
 
 # Dispatch the UDP ingestion worker to a background daemon thread
 threading.Thread(target=udp_ingress_worker, daemon=True).start()
+
+pending_command = {"pump": None} # None: Auto, True: Force ON, False: Force OFF
+
+@app.post("/api/v1/control/pump")
+async def control_pump(state: Optional[str] = None):
+    """Manual override endpoint. Accepts 'true', 'false', or 'null' (Auto)."""
+    global pending_command
+    
+    # Parse the string state from JS into Python boolean/None
+    if state == "true":
+        pending_command["pump"] = True
+    elif state == "false":
+        pending_command["pump"] = False
+    else:
+        pending_command["pump"] = None
+        
+    return {"status": "COMMAND_QUEUED", "state": pending_command["pump"]}
 
 @app.get("/")
 async def root():
@@ -85,7 +105,10 @@ async def root():
 @app.get("/api/v1/telemetry/latest")
 async def get_telemetry():
     """REST API endpoint for synchronous dashboard updates."""
-    return latest_telemetry
+    return {
+        "telemetry": latest_telemetry,
+        "command": pending_command["pump"]
+    }
 
 if __name__ == "__main__":
     import uvicorn

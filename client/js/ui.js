@@ -55,7 +55,9 @@ export const ui = {
     sys_core: document.getElementById('ui_core_temp'),
     sys_heap: document.getElementById('ui_heap'),
     sys_uptime: document.getElementById('ui_uptime'),
-    sys_soil_raw: document.getElementById('ui_soil_raw')
+    sys_soil_raw: document.getElementById('ui_soil_raw'),
+    sys_pump: document.getElementById('ui_pump_status'),
+    sys_mode: document.getElementById('mode_display')
 };
 
 const createGaugeConfig = (color, max) => ({
@@ -109,6 +111,21 @@ export function updateDashboard(data) {
     ui.sys_uptime.textContent = data.uptime_sec;
 
     ui.sys_soil_raw.textContent = data.soil_raw;
+
+    // Actuator state visual feedback
+    ui.sys_pump.textContent = data.pump_is_active ? "ENGAGED" : "STANDBY";
+    ui.sys_pump.style.color = data.pump_is_active ? "#10B981" : "#6B7280"; // Emerald if running, Gray if standby
+
+    if (data.current_mode === true) {
+        ui.sys_mode.textContent = "MODE: MANUAL - FORCE ON";
+        ui.sys_mode.style.color = "#10B981"; // Green for force on
+    } else if (data.current_mode === false) {
+        ui.sys_mode.textContent = "MODE: MANUAL - FORCE OFF";
+        ui.sys_mode.style.color = "#EF4444"; // Red for manual off
+    } else {
+        ui.sys_mode.textContent = "MODE: AUTOMATIC";
+        ui.sys_mode.style.color = "#6B7280"; // Gray for automatic mode
+    }
 
     // Authentication visual feedback
     if (data.id && data.id.includes("28:CD:C1")) {

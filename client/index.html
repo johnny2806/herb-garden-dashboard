@@ -72,6 +72,16 @@
                 </div>
                 <h3 class="card-label">Soil Moisture</h3>
             </div>
+
+            <div class="dashboard-card flex flex-col items-center">
+                <h3 class="card-label">Manual Control Grid</h3>
+                <div class="control-grid">
+                    <button id="btn_pump_on" class="btn btn-emerald">PUMP ON</button>
+                    <button id="btn_pump_off" class="btn btn-red">PUMP OFF</button>
+                    <button id="btn_pump_auto" class="btn btn-gray">AUTO MODE</button>
+                </div>
+                <p id="mode_display" class="text-xs mt-4 font-mono">MODE: AUTOMATIC</p>
+            </div>
         </main>
 
         <div
@@ -80,6 +90,7 @@
                 <span>📡 WLAN RSSI: <strong id="ui_rssi" class="text-gray-800">--</strong> dBm</span>
                 <span>🔥 RP2040 CORE: <strong id="ui_core_temp" class="text-gray-800">--</strong> °C</span>
                 <span>💧 SOIL ADC: <strong id="ui_soil_raw" class="text-gray-800">--</strong></span>
+                <span>⚙️ PUMP: <strong id="ui_pump_status" class="text-gray-800">--</strong></span>
             </div>
         </div>
         <div class="flex gap-4">
